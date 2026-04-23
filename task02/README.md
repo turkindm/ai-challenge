@@ -20,13 +20,13 @@
 Простой запрос с ролью:
 
 ```bash
-./day02 -message "Объясни горутины" -system "Ты эксперт по Go"
+./task02 -message "Объясни горутины" -system "Ты эксперт по Go"
 ```
 
 Структурированный ответ по JSON Schema:
 
 ```bash
-./day02 \
+./task02 \
   -message "2+2" \
   -system "Ты математик" \
   -max_tokens 100 \
@@ -38,13 +38,13 @@
 Остановка генерации по строке:
 
 ```bash
-./day02 -message "Перечисли языки программирования" -stop_sequences "4."
+./task02 -message "Перечисли языки программирования" -stop_sequences "4."
 ```
 
 Сырой ответ API:
 
 ```bash
-./day02 -message "Привет" -verbose
+./task02 -message "Привет" -verbose
 ```
 
 ## Переменные окружения

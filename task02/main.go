@@ -74,7 +74,7 @@ func main() {
 	flag.Parse()
 
 	if *message == "" {
-		fmt.Fprintln(os.Stderr, "usage: day02 -message <text> [-system <prompt>] [-output_schema <json-schema>] [-max_tokens <n>] [-stop_sequences <seq>]")
+		fmt.Fprintln(os.Stderr, "usage: task02 -message <text> [-system <prompt>] [-output_schema <json-schema>] [-max_tokens <n>] [-stop_sequences <seq>]")
 		os.Exit(1)
 	}
 

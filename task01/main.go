@@ -55,7 +55,7 @@ func main() {
 	flag.Parse()
 
 	if *message == "" {
-		fmt.Fprintln(os.Stderr, "usage: day01 -message <text>")
+		fmt.Fprintln(os.Stderr, "usage: task01 -message <text>")
 		os.Exit(1)
 	}
 	userMessage := *message

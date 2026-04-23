@@ -1,4 +1,4 @@
-module ai-challenge/day01
+module ai-challenge/task01
 
 go 1.25.4
 
