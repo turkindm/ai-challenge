@@ -3,9 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
-	"flag"
 	"net/http"
 	"os"
 
@@ -81,7 +81,6 @@ func main() {
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-api-key", apiKey)
-	req.Header.Set("anthropic-version", "2023-06-01")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
