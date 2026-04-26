@@ -15,27 +15,27 @@ import (
 
 const defaultGatewayURL = "https://api.anthropic.com"
 
-const defaultTask = `Придумай 5 названий для внутреннего CLI-инструмента,
-который помогает разработчикам управлять локальным окружением (запуск сервисов, миграции, сиды БД).`
+const defaultTask = `В prod упал сервис: p99 latency выросла с 50ms до 8s, CPU в норме, память растёт, БД нагрузка в норме.
+Опиши план диагностики: ровно 5 шагов, каждый — одно предложение. Без кода, без подзаголовков.`
 
 // Актуальные цены Anthropic ($/1M токенов)
 // https://www.anthropic.com/pricing
 var models = []Model{
 	{
-		ID:    "claude-opus-4-6",
-		Label: "Сильная (Opus 4.6)",
+		ID:               "claude-opus-4-6",
+		Label:            "Сильная (Opus 4.6)",
 		InputPricePer1M:  15.00,
 		OutputPricePer1M: 75.00,
 	},
 	{
-		ID:    "claude-sonnet-4-6",
-		Label: "Средняя (Sonnet 4.6)",
+		ID:               "claude-sonnet-4-6",
+		Label:            "Средняя (Sonnet 4.6)",
 		InputPricePer1M:  3.00,
 		OutputPricePer1M: 15.00,
 	},
 	{
-		ID:    "claude-haiku-4-5-20251001",
-		Label: "Слабая (Haiku 4.5)",
+		ID:               "claude-haiku-4-5-20251001",
+		Label:            "Слабая (Haiku 4.5)",
 		InputPricePer1M:  0.80,
 		OutputPricePer1M: 4.00,
 	},
