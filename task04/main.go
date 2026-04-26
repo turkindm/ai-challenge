@@ -14,7 +14,8 @@ import (
 
 const defaultGatewayURL = "https://api.anthropic.com"
 
-const defaultTask = `Придумай короткое стихотворение о весне (4 строки).`
+const defaultTask = `Придумай 5 названий для внутреннего CLI-инструмента, 
+который помогает разработчикам управлять локальным окружением (запуск сервисов, миграции, сиды БД).`
 
 var temperatures = []float64{0, 0.7, 1.0}
 
