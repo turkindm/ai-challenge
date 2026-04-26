@@ -163,7 +163,7 @@ func main() {
 
 	message := flag.String("message", defaultTask, "prompt to send to all models")
 	system := flag.String("system", "Ты полезный ассистент.", "system prompt")
-	maxTokens := flag.Int("max_tokens", 256, "maximum number of tokens to generate")
+	maxTokens := flag.Int("max_tokens", 1024, "maximum number of tokens to generate")
 	flag.Parse()
 
 	fmt.Printf("Запрос: %s\n\n", *message)
