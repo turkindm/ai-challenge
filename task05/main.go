@@ -90,10 +90,10 @@ type Result struct {
 	Elapsed      time.Duration
 }
 
-func ask(apiKey, gatewayURL string, model Model, system, userMessage string) (Result, error) {
+func ask(apiKey, gatewayURL string, model Model, system, userMessage string, maxTokens int) (Result, error) {
 	reqBody := Request{
 		Model:     model.ID,
-		MaxTokens: 1024,
+		MaxTokens: maxTokens,
 		Messages:  []Message{{Role: "user", Content: userMessage}},
 		System:    system,
 	}
@@ -163,6 +163,7 @@ func main() {
 
 	message := flag.String("message", defaultTask, "prompt to send to all models")
 	system := flag.String("system", "Ты полезный ассистент.", "system prompt")
+	maxTokens := flag.Int("max_tokens", 256, "maximum number of tokens to generate")
 	flag.Parse()
 
 	fmt.Printf("Запрос: %s\n\n", *message)
@@ -179,7 +180,7 @@ func main() {
 	for _, model := range models {
 		fmt.Printf("=== %s ===\n", model.Label)
 
-		res, err := ask(apiKey, gatewayURL, model, *system, *message)
+		res, err := ask(apiKey, gatewayURL, model, *system, *message, *maxTokens)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ошибка: %v\n\n", err)
 			continue
