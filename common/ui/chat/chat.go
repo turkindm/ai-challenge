@@ -26,36 +26,43 @@ func Run(ag Agent) error {
 // ── стили ─────────────────────────────────────────────────────────────────
 
 var (
-	styleBorder = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("63"))
-
-	styleHeader = lipgloss.NewStyle().
+	styleTitle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("63")).
-			Padding(0, 1)
+			Foreground(lipgloss.Color("15"))
+
+	styleRule = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("238"))
 
 	styleUserLabel = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color("212"))
 
-	styleAssistantLabel = lipgloss.NewStyle().
-				Bold(true).
-				Foreground(lipgloss.Color("86"))
+	styleAgentLabel = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color("86"))
 
 	styleErrorLabel = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(lipgloss.Color("196"))
 
-	styleInputPrompt = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("63")).
-				Bold(true)
+	styleUserText = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("252"))
+
+	styleAgentText = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("255"))
+
+	styleErrorText = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("203"))
+
+	stylePrompt = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("63")).
+			Bold(true)
 
 	styleHelp = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("240"))
 
 	styleSpinner = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("220"))
+			Foreground(lipgloss.Color("63"))
 )
 
 // ── внутренние типы ────────────────────────────────────────────────────────
@@ -174,35 +181,46 @@ func (m model) View() tea.View {
 // ── рендер ────────────────────────────────────────────────────────────────
 
 func (m model) render() string {
-	innerW := m.width - 2
+	w := m.width
 
-	header := styleHeader.Render("AI Agent")
-	helpLine := styleHelp.Render("Enter — отправить  ·  Ctrl+U — очистить  ·  ↑↓ — прокрутка  ·  Esc — выход")
+	rule := styleRule.Render(strings.Repeat("─", w))
 
-	cursorBlink := "█"
+	// ── шапка ──────────────────────────────────────────────────────────────
+	header := " " + styleTitle.Render("AI Agent")
+
+	// ── поле ввода (2 строки: разделитель + строка ввода) ──────────────────
+	cursor := "█"
 	if m.loading {
-		cursorBlink = ""
+		cursor = ""
 	}
-	inputLine := styleInputPrompt.Render("›") + " " + m.input + cursorBlink
+	inputLine := " " + stylePrompt.Render(">") + " " + m.input + cursor
+	helpLine := " " + styleHelp.Render("enter — отправить  ·  ctrl+u — очистить  ·  ↑↓ — прокрутка  ·  esc — выйти")
 
-	// высота области чата: вся высота минус header, рамки, поле ввода, подсказка
-	chatH := m.height - 7
-	if chatH < 3 {
-		chatH = 3
+	// высота фиксированных элементов: шапка(1) + rule(1) + rule(1) + input(1) + help(1) = 5
+	// + 1 пустая строка под шапкой, + 1 пустая строка над разделителем ввода
+	fixedRows := 7
+	chatH := m.height - fixedRows
+	if chatH < 2 {
+		chatH = 2
 	}
-	chatW := innerW - 2
+	chatW := w - 2 // отступ по 1 слева
 
+	// ── сообщения ──────────────────────────────────────────────────────────
 	var lines []string
 	for _, e := range m.entries {
-		lines = append(lines, renderEntry(e, chatW)...)
-		lines = append(lines, "")
+		lines = append(lines, entryLines(e, chatW)...)
+		lines = append(lines, "") // отступ между сообщениями
 	}
 	if m.loading {
-		lines = append(lines, styleSpinner.Render(spinnerFrames[m.spinStep])+" думаю…", "")
+		spinner := styleSpinner.Render(spinnerFrames[m.spinStep])
+		lines = append(lines, " "+styleAgentLabel.Render("Agent"))
+		lines = append(lines, " "+spinner)
+		lines = append(lines, "")
 	}
 
 	// прокрутка
-	end := len(lines) - m.scroll
+	total := len(lines)
+	end := total - m.scroll
 	if end < 0 {
 		end = 0
 	}
@@ -215,25 +233,51 @@ func (m model) render() string {
 		visible = append(visible, "")
 	}
 
-	chatBox := styleBorder.Width(innerW).Height(chatH).Render(strings.Join(visible, "\n"))
-	inputBox := styleBorder.Width(innerW).Render(inputLine)
+	var sb strings.Builder
+	sb.WriteString(header + "\n")
+	sb.WriteString(rule + "\n")
+	sb.WriteString(strings.Join(visible, "\n") + "\n")
+	sb.WriteString(rule + "\n")
+	sb.WriteString(inputLine + "\n")
+	sb.WriteString(rule + "\n")
+	sb.WriteString(helpLine)
 
-	return lipgloss.JoinVertical(lipgloss.Left, header, chatBox, inputBox, helpLine)
+	return sb.String()
 }
 
-func renderEntry(e chatEntry, width int) []string {
-	var label string
+// entryLines возвращает строки для одной записи чата.
+func entryLines(e chatEntry, width int) []string {
+	var label, textStyle string
 	switch e.role {
 	case "user":
-		label = styleUserLabel.Render("Вы:")
+		label = " " + styleUserLabel.Render("You")
+		textStyle = "user"
 	case "assistant":
-		label = styleAssistantLabel.Render("Agent:")
+		label = " " + styleAgentLabel.Render("Agent")
+		textStyle = "assistant"
 	default:
-		label = styleErrorLabel.Render("Ошибка:")
+		label = " " + styleErrorLabel.Render("Error")
+		textStyle = "error"
 	}
-	return append([]string{label}, wordWrap(e.content, width)...)
+
+	wrapped := wordWrap(e.content, width)
+	result := []string{label}
+	for _, line := range wrapped {
+		var rendered string
+		switch textStyle {
+		case "user":
+			rendered = " " + styleUserText.Render(line)
+		case "assistant":
+			rendered = " " + styleAgentText.Render(line)
+		default:
+			rendered = " " + styleErrorText.Render(line)
+		}
+		result = append(result, rendered)
+	}
+	return result
 }
 
+// wordWrap разбивает текст на строки не длиннее maxW символов.
 func wordWrap(text string, maxW int) []string {
 	if maxW <= 0 {
 		return []string{text}
@@ -249,7 +293,7 @@ func wordWrap(text string, maxW int) []string {
 		for _, w := range words {
 			if cur == "" {
 				cur = w
-			} else if len(cur)+1+len(w) <= maxW {
+			} else if utf8.RuneCountInString(cur)+1+utf8.RuneCountInString(w) <= maxW {
 				cur += " " + w
 			} else {
 				result = append(result, cur)
